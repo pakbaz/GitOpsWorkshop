@@ -27,9 +27,13 @@ kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 kubectl get pods -n argocd -w
 
+# Option1- Change SVC to Load Balancer For Azure
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
-
 $Server = kubectl get services --namespace argocd argocd-server --output jsonpath='{.status.loadBalancer.ingress[0].ip}'
+
+# Option2- Port Forwarding for local cluster
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+$Server = "localhost:8080"
 
 $Password = ([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String((kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}"))))
 
@@ -41,4 +45,15 @@ argocd app get voteapp
 
 argocd app sync voteapp
 
+
+# Open Vote App Locally
+kubectl port-forward svc/azure-vote-front 8081:80
+$url = "localhost:8081"
+# Open Vote app in azure by getting load balancer IP
+$url = kubectl get svc azure-vote-front -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+
+Start "http://$url"
+
 argocd app delete voteapp
+
+
