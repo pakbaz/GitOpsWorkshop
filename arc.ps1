@@ -35,10 +35,10 @@ $Password = ([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64
 
 argocd login $Server --username admin --password $Password --insecure
 
-argocd app create voteapp --repo https://github.com/pakbaz/argocd-example-apps.git --path guestbook --dest-server https://kubernetes.default.svc --dest-namespace default
+argocd app create voteapp --repo https://github.com/pakbaz/GitOpsWorkshop.git --path apps/vote-app --dest-server https://kubernetes.default.svc --dest-namespace default
 
-argocd app get guestbook
+argocd app get voteapp
 
-argocd app sync guestbook
+argocd app sync voteapp
 
-argocd app delete guestbook
+argocd app delete voteapp
