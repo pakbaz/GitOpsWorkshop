@@ -36,15 +36,18 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 $Server = "localhost:8080"
 
 $Password = ([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String((kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}"))))
+Set-Clipboard -Value $Password
 
 argocd login $Server --username admin --password $Password --insecure
 
 argocd app create voteapp --repo https://github.com/pakbaz/GitOpsWorkshop.git --path apps/vote-app --dest-server https://kubernetes.default.svc --dest-namespace default
-
 argocd app get voteapp
-
 argocd app sync voteapp
 
+kubectl create namespace shop
+argocd app create sockshop --repo https://github.com/pakbaz/GitOpsWorkshop.git --path apps/sock-shop --dest-server https://kubernetes.default.svc --dest-namespace shop
+argocd app get sockshop
+argocd app sync sockshop
 
 # Open Vote App Locally
 kubectl port-forward svc/azure-vote-front 8081:80
