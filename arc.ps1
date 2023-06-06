@@ -6,6 +6,11 @@ az aks create -g "demo" -n "cluster1" --node-count 1 --generate-ssh-keys --node-
 # get credentials
 az aks get-credentials -g "demo" -n "cluster1"
 
+# Helm example
+helm install wordpress oci://registry-1.docker.io/bitnamicharts/wordpress -n wordpress --create-namespace
+# get the password in powershell
+$Password = ([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String((kubectl get secret --namespace wordpress wordpress -o jsonpath="{.data.wordpress-password}"))))
+Set-Clipboard -Value $Password
 
 # Create Local cluster with k3d or kind
 # k3d cluster create mycluster
