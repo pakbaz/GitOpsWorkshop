@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitops-app
+  namespace: gitops-app
+spec:
+  #replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: gitops-app
+  template:
+    metadata:
+      labels:
+        app: gitops-app
+        role: frontend
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - name: vwsnode
+        image: welasco/nodejsportexhaustion
+        #image: welasco/nodejssockethttpserver
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+        readinessProbe:
+            httpGet:
+               path: /
+               port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+        livenessProbe:
+            httpGet:
+                path: /
+                port: 3000
+                httpHeaders:
+                - name: Custom-Header
+                  value: Awesome
+            initialDelaySeconds: 3
+            periodSeconds: 3
+        env:
+        - name: backend
+          value: "gitops-backend-service.gitops-app.svc.cluster.local"
+        - name: backendport
+          value: "3001"
+        - name: environment
+          value: "gitops-app"
